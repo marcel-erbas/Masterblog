@@ -1,8 +1,8 @@
 [
     {
         "id": 1,
-        "author": "fsf",
-        "title": "sdfsdf",
-        "content": "sdfsdf"
+        "author": "Marcel",
+        "title": "First Post",
+        "content": "Hello World!"
     }
 ]
