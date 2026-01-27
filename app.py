@@ -1,0 +1,82 @@
+import json
+from flask import Flask, render_template, request, redirect, url_for
+
+app = Flask(__name__)
+DATA_FILE = 'blog_posts.json'
+
+
+def load_posts():
+    """Helper to read the blog posts from the JSON storage file."""
+    try:
+        with open(DATA_FILE, 'r') as f:
+            return json.load(f)
+    except (FileNotFoundError, json.JSONDecodeError):
+        return []
+
+
+def save_posts(posts):
+    """Helper to write the list of blog posts back to the JSON file."""
+    with open(DATA_FILE, 'w') as f:
+        json.dump(posts, f, indent=4)
+
+
+@app.route('/')
+def index():
+    """Fetches all posts and displays them on the home page."""
+    blog_posts = load_posts()
+    return render_template('index.html', posts=blog_posts)
+
+
+@app.route('/add', methods=['GET', 'POST'])
+def add():
+    """Displays the add form or creates a new post with a unique ID."""
+    if request.method == 'POST':
+        blog_posts = load_posts()
+
+        new_id = max([p['id'] for p in blog_posts], default=0) + 1
+
+        new_post = {
+            "id": new_id,
+            "author": request.form.get('author'),
+            "title": request.form.get('title'),
+            "content": request.form.get('content')
+        }
+
+        blog_posts.append(new_post)
+        save_posts(blog_posts)
+        return redirect(url_for('index'))
+
+    return render_template('add.html')
+
+
+@app.route('/delete/<int:post_id>')
+def delete(post_id):
+    """Removes a specific blog post by its unique ID."""
+    blog_posts = load_posts()
+    updated_posts = [p for p in blog_posts if p['id'] != post_id]
+    save_posts(updated_posts)
+    return redirect(url_for('index'))
+
+
+@app.route('/update/<int:post_id>', methods=['GET', 'POST'])
+def update(post_id):
+    """Fetches an existing post to populate the update form or saves changes."""
+    blog_posts = load_posts()
+    post = next((p for p in blog_posts if p['id'] == post_id), None)
+
+    if post is None:
+        return "Post not found", 404
+
+    if request.method == 'POST':
+        post['author'] = request.form.get('author')
+        post['title'] = request.form.get('title')
+        post['content'] = request.form.get('content')
+
+        save_posts(blog_posts)
+        return redirect(url_for('index'))
+
+    return render_template('update.html', post=post)
+
+
+if __name__ == '__main__':
+    app.run(host="0.0.0.0", port=5000, debug=True)
