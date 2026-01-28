@@ -20,10 +20,14 @@
         <p>{{ post.content }}</p>
 
         <div class="post-actions">
-        <a href="{{ url_for('update', post_id=post.id) }}" class="update-link">Update</a>
-        <a href="{{ url_for('delete', post_id=post.id) }}" class="delete-link" onclick="return confirm('Are you sure?')">Delete</a>
-        </a>
-    </div>
+            <a href="{{ url_for('update', post_id=post.id) }}" class="update-link">Update</a>
+
+            <form action="{{ url_for('delete', post_id=post.id) }}" method="POST" style="display:inline;">
+                <button type="submit" class="delete-link-button" onclick="return confirm('Are you sure?')">
+                    Delete
+                </button>
+            </form>
+        </div>
     </div>
     {% endfor %}
 

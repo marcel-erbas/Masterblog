@@ -49,11 +49,12 @@ def add():
     return render_template('add.html')
 
 
-@app.route('/delete/<int:post_id>')
+@app.route('/delete/<int:post_id>', methods=['POST'])
 def delete(post_id):
     """Removes a specific blog post by its unique ID."""
     blog_posts = load_posts()
     updated_posts = [p for p in blog_posts if p['id'] != post_id]
+
     save_posts(updated_posts)
     return redirect(url_for('index'))
 
